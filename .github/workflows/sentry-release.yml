@@ -2,10 +2,13 @@ name: release
 
 on:
     workflow_call:
+        secrets:
+            SENTRY_AUTH_TOKEN:
+                required: true
 
 jobs:
   sentry-release:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - uses: actions/checkout@v3
