@@ -1,0 +1,41 @@
+name: release
+
+on:
+    workflow_call:
+
+jobs:
+  sentry-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get Release
+        id: set-variables
+        run: |
+            echo "release=$(git log --pretty="%h" -n1 HEAD)" >> $GITHUB_OUTPUT
+            REPO_NAME=$(echo "${{ github.repository }}" | cut -d '/' -f 2)
+            echo "repository=$REPO_NAME" >> $GITHUB_OUTPUT
+
+            if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+              echo "environment=production" >> $GITHUB_OUTPUT
+            elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+              echo "environment=staging" >> $GITHUB_OUTPUT
+            fi
+
+      - name: Debug
+        run: |
+            echo ${{ steps.set-variables.outputs.release }}
+            echo ${{ steps.set-variables.outputs.repository }}
+            echo ${{ steps.set-variables.outputs.environment }}
+
+      - name: Create sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ github.repository_owner }}
+          SENTRY_PROJECT: ${{ steps.set-variables.outputs.repository }}
+        with:
+          environment: ${{ steps.set-variables.outputs.environment }}
