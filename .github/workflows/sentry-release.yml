@@ -23,7 +23,7 @@ jobs:
             echo "repository=$REPO_NAME" >> $GITHUB_OUTPUT
 
             if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-              echo "environment=production" >> $GITHUB_OUTPUT
+            echo "environment=production" >> $GITHUB_OUTPUT
             elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
               echo "environment=staging" >> $GITHUB_OUTPUT
             fi
