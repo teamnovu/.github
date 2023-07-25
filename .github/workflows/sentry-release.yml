@@ -1,10 +1,10 @@
 name: release
 
 on:
-    workflow_call:
-        secrets:
-            SENTRY_AUTH_TOKEN:
-                required: true
+  workflow_call:
+    secrets:
+      SENTRY_AUTH_TOKEN:
+        required: true
 
 jobs:
   sentry-release:
