@@ -40,3 +40,4 @@ jobs:
           SENTRY_PROJECT: ${{ steps.set-variables.outputs.repository }}
         with:
           environment: ${{ steps.set-variables.outputs.environment }}
+          ignore_missing: true
