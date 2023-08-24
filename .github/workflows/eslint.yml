@@ -32,6 +32,13 @@ jobs:
           ref: ${{ github.head_ref }}
 
       - name: Setup Node
+        if: ${{ !secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Setup Node with Font Awesome registry
+        if: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ inputs.node-version }}
