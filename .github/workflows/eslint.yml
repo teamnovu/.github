@@ -40,8 +40,11 @@ jobs:
       - name: Authenticate private node registries
         run: |
           if [[ -n "${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}" ]]; then
-              echo "setting npm token to ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}"
-              npm config set '//npm.fontawesome.com/:_authToken' "${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}"
+            echo "setting npm token to ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}"
+            npm config set '//npm.fontawesome.com/:_authToken' "${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}"
+          else
+            echo "FONTAWESOME_NPM_AUTH_TOKEN not set, removing it"
+            npm config delete '//npm.fontawesome.com/:_authToken'
           fi
 
       - name: Get yarn cache directory path
