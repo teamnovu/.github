@@ -61,19 +61,27 @@ jobs:
         run: |
           yarn install --pure-lockfile
 
-      - name: Get pnpm cache directory path
+      - name: Install pnpm
         if: ${{ inputs.package-manager == 'pnpm' }}
-        id: pnpm-cache-dir-path
-        run: echo "::set-output name=dir::$(echo ~/.pnpm-store)"
-
-      - uses: actions/cache@v3
-        id: pnpm-cache # use this to check for `cache-hit` (`steps.pnpm-cache.outputs.cache-hit != 'true'`)
-        if: ${{ inputs.package-manager == 'pnpm' }}
+        uses: pnpm/action-setup@v2
         with:
-          path: ${{ steps.pnpm-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-${{ inputs.node-version }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          version: 8
+          run_install: false
+
+      - name: Get pnpm store directory
+        if: ${{ inputs.package-manager == 'pnpm' }}
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        if: ${{ inputs.package-manager == 'pnpm' }}
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-${{ inputs.node-version }}-pnpm
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install node dependencies using pnpm
         if: ${{ inputs.package-manager == 'pnpm' }}
