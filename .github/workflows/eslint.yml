@@ -9,6 +9,7 @@ on:
 
       package-manager:
         default: "yarn"
+        required: false
         type: string
 
 concurrency:
