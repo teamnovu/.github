@@ -7,6 +7,10 @@ on:
         required: true
         type: string
 
+      package-manager:
+        default: "yarn"
+        type: string
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -39,24 +43,46 @@ jobs:
           fi
 
       - name: Get yarn cache directory path
+        if: ${{ inputs.package-manager == 'yarn' }}
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
 
       - uses: actions/cache@v3
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        if: ${{ inputs.package-manager == 'yarn' }}
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-${{ inputs.node-version }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-${{ inputs.node-version }}-yarn
 
-      - name: Install node dependencies
+      - name: Install node dependencies using yarn
+        if: ${{ inputs.package-manager == 'yarn' }}
         run: |
           yarn install --pure-lockfile
 
+      - name: Get pnpm cache directory path
+        if: ${{ inputs.package-manager == 'pnpm' }}
+        id: pnpm-cache-dir-path
+        run: echo "::set-output name=dir::$(echo ~/.pnpm-store)"
+
+      - uses: actions/cache@v3
+        id: pnpm-cache # use this to check for `cache-hit` (`steps.pnpm-cache.outputs.cache-hit != 'true'`)
+        if: ${{ inputs.package-manager == 'pnpm' }}
+        with:
+          path: ${{ steps.pnpm-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-${{ inputs.node-version }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ inputs.node-version }}-pnpm
+
+      - name: Install node dependencies using pnpm
+        if: ${{ inputs.package-manager == 'pnpm' }}
+        run: |
+          pnpm install
+
       - name: Run ESLint
         run: |
-          yarn lint:fix
+          npm run lint:fix
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
