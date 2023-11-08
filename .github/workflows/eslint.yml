@@ -72,6 +72,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ inputs.node-version }}-yarn
 
+      - name: Install yarn
+        if: ${{ inputs.package-manager == 'yarn' }}
+        run: |
+          npm install -g yarn
+          
       - name: Install node dependencies using yarn
         if: ${{ inputs.package-manager == 'yarn' }}
         run: |
